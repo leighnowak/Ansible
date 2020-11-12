@@ -1,0 +1,34 @@
+---
+
+- hosts: Webservers
+  become: yes
+
+
+  tasks:
+
+       - name: install openscap-scanner
+         yum:
+            name: openscap-scanner
+            state: latest
+
+       - name: install scap security guide
+         yum:
+           name: scap-security-guide
+           state: latest
+
+       - name: ensure apache is at the latest version
+         yum:
+            name: httpd
+            state: latest
+
+       - name: ensure httpd is running
+         service:
+             name: httpd
+             state: started
+
+       - name: run oval scan report
+         command: oscap oval eval --results rhsa-results-oval.xml --report /var/www/html/oval-report.html /usr/share/xml/scap/ssg/content/ssg-rhel7-oval.xml
+
+       - name: run stig scap report
+         command: oscap xccdf eval --profile stig-rhel7-disa --results /var/www/html/scan-xccdf-results.xml --report /var/www/html/scap-report.html /usr/share/xml/scap/ssg/content/ssg-centos7-xccdf.xml
+
